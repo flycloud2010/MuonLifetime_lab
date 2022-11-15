@@ -42,7 +42,7 @@ double tau_long = ToADC(2.1969811,a,b);
 void MC_CDF(int N_sim, bool save = true, bool rebin = false)
 {   
 
-    const int N_events = 140000; // number of events in one week
+    const int N_events = 70000; // number of events in one week
 
     double Begin = 179.5;
     double End = 2048.5;
@@ -62,7 +62,7 @@ void MC_CDF(int N_sim, bool save = true, bool rebin = false)
     TString filename = "taulong_invcdf.root";
 
     TFile* outfile = new TFile("root_files/" + filename,"RECREATE");
-    TTree* invcdf = new TTree("expo_taulong","Tree"); 
+    TTree* invcdf = new TTree("expo_taulong_0.5N","Tree"); 
 
     int k = 5;
 
@@ -121,7 +121,7 @@ void MC_CDF(int N_sim, bool save = true, bool rebin = false)
             {   
                 n_tau = 5 + k;
 
-                Begin_fit = n_tau * tau_short;
+                Begin_fit = 180. + n_tau * tau_short;
                 f = new TF1("f","expo",Begin_fit,End);
 
                 // ---- CHI SQUARE METHOD ---- //
