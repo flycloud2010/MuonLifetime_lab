@@ -39,7 +39,7 @@ double tau_long = ToADC(2.1969811,a,b);
 
 
 
-void FitBaseline(int N_sim, bool save = true, bool rebin = false, int weeks = 1, float n_tau_short = 4)
+void ExpBase(int N_sim, bool save = true, bool rebin = false, int weeks = 1, int n_tau_short = 4)
 {   
 
     
@@ -74,11 +74,12 @@ void FitBaseline(int N_sim, bool save = true, bool rebin = false, int weeks = 1,
     cout << "Nbins: " << nbins << endl;
     cout << "Nentries " << N_events << endl;
     cout << "N_sim " << N_sim << endl;
+    cout << "weeks: "  << weeks << endl;
 
-    TString filename = "exp_base_v2.root";
+    TString filename = Form("exp_base_v2_%d.root", weeks);
 
-    TFile* outfile = new TFile("root_files/" + filename,"RECREATE");
-    TTree* outtree = new TTree(Form("baseline_exp_%ftau",n_tau_short),"Tree"); 
+    TFile* outfile = new TFile("root_files/" + filename,"UPDATE");
+    TTree* outtree = new TTree(Form("baseline_exp_%d",n_tau_short),"Tree"); 
 
     double bs_LL[10], bs_LL_err[10];        // Log_Likelihood
     double bs_LL_relerr[10], bs_delta_L[10];
