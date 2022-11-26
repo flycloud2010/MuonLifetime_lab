@@ -1,0 +1,6 @@
+*.root
+.vscode
+/preliminary_fit
+.DS_STORE
+*.png
+*.pdf
