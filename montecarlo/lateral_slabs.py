@@ -19,8 +19,9 @@ from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 L = 182 # cm
 W = 20  # cm
 H = 2.68
-N_events = int((L*W + 2*L*H + 2*W*H) * (100/60)) # events in 100s in whole surface 
 
+#N_events = 10*int((L*W + 2*L*H + 2*W*H) * (100/60)) # events in 100s in whole surface 
+N_events = 6016
 #N_events = 6183 # events in 100s in whole surface 
 
 PI = np.pi
@@ -73,12 +74,18 @@ def generate_angular(dist, limits, N):
 
 
 
-def coincidences(X_tilde):
+def lateral(X_tilde):
 
-    print("N events: ",N_events)
+    L2 = L+2*X_tilde
+    W2 = W+2*X_tilde 
+
+    #N_events = int((L*W + 2*L*H + 2*W*H) * (100/60)) # events in 100s in whole surface 
+    N_events = 6016
+
+    #print("N events: ",N_events)
 
     counter, entries = 0,0
-
+    
     x0, y0, z0, theta, phi = np.zeros(N_events), np.zeros(N_events), np.zeros(N_events), np.zeros(N_events), np.zeros(N_events)
 
     i = 0
@@ -89,10 +96,10 @@ def coincidences(X_tilde):
         globals()[f'x{D}'], globals()[f'y{D}'], globals()[f'z{D}'] = np.zeros(N_events), np.zeros(N_events), np.zeros(N_events)
 
 
-    for D in tqdm([8,16,24,32]):
+    for D in [8,16,24,32]:
         i = 0
 
-        while(i>=0):
+        while(i>=-1):
 
             if globals()[f'counter{D}'] >= N_events: break
 
@@ -200,6 +207,7 @@ def coincidences(X_tilde):
     z_f.append(z8)
 
 
+
     for D in [8,16,24,32]:
         for i in range(0, N_events):
             globals()[f'xf{D}'][i]= x0[i] - (D + globals()[f'z{D}'][i]) * np.tan(theta[i]) * np.cos(phi[i])
@@ -212,18 +220,19 @@ def coincidences(X_tilde):
         y_f.append(globals()[f'yf{i}'])
         z_f.append(globals()[f'zf{i}'])
 
-    
+
     index = []
 
     for D in [8,16,24,32]:
+
+        globals()[f'countercoinc{D}'] = 0
         counterz = 0
         counterzcoin = 0
-        countercoinc = 0
-
+        
         for i in range(0,N_events):
     
             if 0 <= globals()[f'xf{D}'][i] and globals()[f'xf{D}'][i] <= L and globals()[f'yf{D}'][i] >= 0 and globals()[f'yf{D}'][i] <= W:
-                countercoinc+=1
+                globals()[f'countercoinc{D}']+=1
 
             if globals()[f'z{D}'][i] != 0: 
                 counterz+=1
@@ -234,27 +243,21 @@ def coincidences(X_tilde):
                     index.append(i)
                
                 
+        ##print("entries: ", entries)
+        print("Coincidences between first and considered slab: ", globals()[f'countercoinc{D}'] )
+        ##print("Perc. coinc: ", globals()[f'countercoinc{D}'] / N_events * 100)
+        print("Lateral events: ", counterz)
+        ##print("Lateral events coincidence: ", counterzcoin)
 
-        print("Coincidences between first and considered slab: ",countercoinc )
-        print("Perc. coinc: ", countercoinc / N_events * 100)
-        print("Numero totale di eventi passato lateralmente: ", counterz)
-        print("Numero totale di eventi passato lateralmente in coincidenza con la slab: ", counterzcoin)
+    counterzcoin = []
+    for D in [8,16,24,32]:
+        counterzcoin.append(globals()[f'countercoinc{D}'])
 
-
-    #for i in range(0,N_events):
-    #    
-    #    x[i + N_events] = globals()[f'xf{D}'][i]
-    #    y[i + N_events] = globals()[f'yf{i}']
-    #    z[i + N_events] = z_f[i]
-
-    #print(len(z))
-	
-
-    return x_f, y_f, z_f, index
+    return x_f, y_f, z_f, index, counterzcoin
 
 def main(X_tilde):
-
-    xf, yf, zf, idx = coincidences(X_tilde)
+    
+    xf, yf, zf, idx = lateral(X_tilde)
 
     x, y, z = [],[], []
 
@@ -341,15 +344,7 @@ def main(X_tilde):
     ax.set_xlim(-300,400)
     ax.set_ylim(-400,400)
 
-    #for i in range(N_events):
-    #    if zf[0][i] == 0: continue
-    #    else: 
-    #        index = i
-    #        print(index, zf[0][index])
-    #
-    #print(index, zf[0][index])
 
-    #fig.savefig("plots/3dslabs.png", dpi = 400)
     index = idx[0]
 
     xline = [xf[0][index], xf[4][index]]
@@ -357,6 +352,12 @@ def main(X_tilde):
     zline = [zf[0][index], zf[4][index]]
     
     ax.plot(xline, yline, zline, color = 'b')
+
+    xline = [xf[0][index], xf[4][index]]
+    yline = [yf[0][index], yf[4][index]]
+    zline = [15, zf[4][index]]
+    
+    ax.plot(xline, yline, zline, color = 'r')
 
     ax.view_init(20, 120)
     fig.tight_layout()
