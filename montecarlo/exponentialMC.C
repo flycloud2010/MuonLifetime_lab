@@ -39,10 +39,10 @@ double tau_long = ToADC(2.1969811,a,b);
 
 
 
-void MC_CDF(int N_sim, bool save = true, bool rebin = false)
+void MC_CDF(int N_sim, bool save = true, bool rebin = false, int nweeks = 1)
 {   
 
-    const int N_events = 70000; // number of events in one week
+    const int N_events = nweeks * 61000; // number of events (mu+) in one week
 
     double Begin = 179.5;
     double End = 2048.5;
@@ -59,10 +59,10 @@ void MC_CDF(int N_sim, bool save = true, bool rebin = false)
     cout << "Nentries " << N_events << endl;
     cout << "N_sim " << N_sim << endl;
 
-    TString filename = "taulong_invcdf.root";
+    TString filename = "taulong_invcdf_v2.root";
 
-    TFile* outfile = new TFile("root_files/" + filename,"RECREATE");
-    TTree* invcdf = new TTree("expo_taulong_0.5N","Tree"); 
+    TFile* outfile = new TFile("root_files/" + filename,"UPDATE");
+    TTree* invcdf = new TTree(Form("expo_taulong_%i",nweeks),"Tree"); 
 
     int k = 5;
 
